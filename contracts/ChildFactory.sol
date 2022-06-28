@@ -11,10 +11,18 @@ contract Factory is CloneFactory {
         masterContract = _masterContract;
     }
 
-    function createChild(uint256 data) external {
+    function createChild(uint256 data) external returns (address) {
         Child child = Child(createClone(masterContract));
         child.init(data);
         children.push(child);
+        return (address(child));
+    }
+
+    function createChildCreate2(uint256 data) external returns (address) {
+        Child child = Child(createCloneCreate2(masterContract, bytes32(data)));
+        child.init(data);
+        children.push(child);
+        return (address(child));
     }
 
     function getChildren() external view returns (Child[] memory) {

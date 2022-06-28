@@ -36,6 +36,23 @@ contract CloneFactory {
         }
     }
 
+    /**
+     * Modified https://github.com/optionality/clone-factory/blob/master/contracts/CloneFactory.sol#L30
+     * to support Create2.
+     * @param _salt Salt for CREATE2
+     */
+    function createCloneCreate2(address target, bytes32 _salt) internal returns (address payable result) {
+        bytes20 targetBytes = bytes20(target);
+        assembly {
+            let clone := mload(0x40)
+            mstore(clone, 0x3d602d80600a3d3981f3363d3d373d3d3d363d73000000000000000000000000)
+            mstore(add(clone, 0x14), targetBytes)
+            mstore(add(clone, 0x28), 0x5af43d82803e903d91602b57fd5bf30000000000000000000000000000000000)
+            result := create2(0, clone, 0x37, _salt)
+        }
+        return result;
+    }
+
     function isClone(address target, address query) internal view returns (bool result) {
         bytes20 targetBytes = bytes20(target);
         assembly {
